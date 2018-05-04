@@ -1,5 +1,5 @@
 require "bundler/setup"
-require "activestorage/webdav"
+require "activestorage-webdav"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
