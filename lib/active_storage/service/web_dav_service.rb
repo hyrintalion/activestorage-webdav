@@ -4,15 +4,15 @@ module ActiveStorage
   class Service::WebDAVService < Service
 
     def initialize(args)
-      @webdav_client = Net::Webdav::Client.new args[:url]
       @path = args[:url]
+      @webdav_client = Net::Webdav::Client.new @path
     end
 
     def upload(key, io, checksum: nil)
       instrument :upload, key: key, checksum: checksum do
         begin
-          full_path = "#{@path}#{key}#{File.extname(io)}"
-          @webdav_client.put_file(full_path, io)
+          full_path = "#{@path}#{key}"
+          @webdav_client.put_file(full_path, io, true)
         rescue StandardError
           raise ActiveStorage::IntegrityError
         end
@@ -21,12 +21,54 @@ module ActiveStorage
 
     def url(key, expires_in:, disposition:, filename:, content_type:)
       instrument :url, key: key do |payload|
-        ext = filename.to_s.split('.').last
-        generated_url = "#{@path}#{key}.#{ext}"
+        generated_url = "#{@path}#{key}"
         payload[:url] = generated_url
         generated_url
       end
     end
 
+    def exist?(key)
+      instrument :exist, key: key do |payload|
+        full_path = "#{@path}#{key}"
+        answer = @webdav_client.file_exists? full_path
+        payload[:exist] = answer
+        answer
+      end
+    end
+
+    def delete(key)
+      instrument :delete, key: key do
+        begin
+          full_path = "#{@path}#{key}"
+          @webdav_client.delete_file full_path
+        rescue StandardError
+          # Ignore files already deleted
+        end
+      end
+    end
+
+    # Return the content of the file at the +key+.
+    def download(key)
+      # get_file remote_file_path, local_file_path
+      raise NotImplementedError
+    end
+
+    # Return the partial content in the byte +range+ of the file at the +key+.
+    def download_chunk(key, range)
+      raise NotImplementedError
+    end
+
+    # Delete files at keys starting with the +prefix+.
+    def delete_prefixed(prefix)
+      raise NotImplementedError
+    end
+
+    # Returns a signed, temporary URL that a direct upload file can be PUT to on the +key+.
+    # The URL will be valid for the amount of seconds specified in +expires_in+.
+    # You must also provide the +content_type+, +content_length+, and +checksum+ of the file
+    # that will be uploaded. All these attributes will be validated by the service upon upload.
+    def url_for_direct_upload(key, expires_in:, content_type:, content_length:, checksum:)
+      raise NotImplementedError
+    end
   end
 end
