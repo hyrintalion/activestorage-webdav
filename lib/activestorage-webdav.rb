@@ -1,4 +1,4 @@
-require "activestorage-webdav/version"
+require 'activestorage-webdav/version'
 
 module ActiveStorageWebdav
   # Your code goes here...

@@ -1,9 +1,13 @@
-require "bundler/setup"
-require "activestorage-webdav"
+require 'bundler/setup'
+require 'active_support/time'
+require 'active_storage'
+
+require 'activestorage-webdav'
+require 'active_storage/service/web_dav_service'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
-  config.example_status_persistence_file_path = ".rspec_status"
+  config.example_status_persistence_file_path = '.rspec_status'
 
   # Disable RSpec exposing methods globally on `Module` and `main`
   config.disable_monkey_patching!

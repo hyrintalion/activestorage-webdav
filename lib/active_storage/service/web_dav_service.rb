@@ -4,14 +4,15 @@ module ActiveStorage
   class Service::WebDAVService < Service
 
     def initialize(args)
+      puts args
       @path = args[:url]
-      @webdav_client = Net::Webdav::Client.new @path
+      @webdav_client = Net::Webdav::Client.new args[:url]
     end
 
     def upload(key, io, checksum: nil)
       instrument :upload, key: key, checksum: checksum do
         begin
-          full_path = "#{@path}#{key}"
+          full_path = path_for key
           @webdav_client.put_file(full_path, io, true)
         rescue StandardError
           raise ActiveStorage::IntegrityError
@@ -21,7 +22,7 @@ module ActiveStorage
 
     def url(key, expires_in:, disposition:, filename:, content_type:)
       instrument :url, key: key do |payload|
-        generated_url = "#{@path}#{key}"
+        generated_url = path_for key
         payload[:url] = generated_url
         generated_url
       end
@@ -29,7 +30,7 @@ module ActiveStorage
 
     def exist?(key)
       instrument :exist, key: key do |payload|
-        full_path = "#{@path}#{key}"
+        full_path = path_for key
         answer = @webdav_client.file_exists? full_path
         payload[:exist] = answer
         answer
@@ -39,7 +40,7 @@ module ActiveStorage
     def delete(key)
       instrument :delete, key: key do
         begin
-          full_path = "#{@path}#{key}"
+          full_path = path_for key
           @webdav_client.delete_file full_path
         rescue StandardError
           # Ignore files already deleted
@@ -69,6 +70,13 @@ module ActiveStorage
     # that will be uploaded. All these attributes will be validated by the service upon upload.
     def url_for_direct_upload(key, expires_in:, content_type:, content_length:, checksum:)
       raise NotImplementedError
+    end
+
+    private
+
+    def path_for(key)
+      return key unless @path
+      File.join(@path, key)
     end
   end
 end

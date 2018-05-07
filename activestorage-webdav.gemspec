@@ -21,13 +21,10 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
+  spec.add_development_dependency 'activestorage', '~> 5.2'
   spec.add_development_dependency 'bundler', '~> 1.16'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
-
-  # Documentation
-  spec.add_development_dependency 'redcarpet', '~> 3.4'
-  spec.add_development_dependency 'yard', '~> 0.9.12'
 
   # Basic dependencies
   spec.add_development_dependency 'webdav-client', '~> 0.0.1'
