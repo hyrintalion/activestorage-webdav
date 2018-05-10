@@ -2,7 +2,7 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
   let(:key) { 'some-resource-key' }
   let(:file) { 'some-io-object' }
 
-  subject(:web_dav_service) { described_class.new(url: "http://localhost:2080/imports/") }
+  subject(:web_dav_service) { described_class.new(url: "http://localhost/imports/") }
 
   describe '#upload' do
     it 'загрузка файла' do
@@ -21,5 +21,9 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
 
       web_dav_service.url(key)
     end
+  end
+
+  describe '#delete prefixed' do
+
   end
 end

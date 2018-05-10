@@ -27,5 +27,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec', '~> 3.0'
 
   # Basic dependencies
-  spec.add_development_dependency 'webdav-client', '~> 0.0.1'
+  spec.add_development_dependency 'net_dav', '~> 0.5.1'
 end
