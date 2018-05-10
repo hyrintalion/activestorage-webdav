@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    activestorage-webdav (0.1.0)
+    activestorage_webdav (0.1.0)
 
 GEM
   remote: https://rubygems.org/
@@ -48,6 +48,9 @@ GEM
       nokogiri (>= 1.5.9)
     marcel (0.3.2)
       mimemagic (~> 0.3.2)
+    mime-types (3.1)
+      mime-types-data (~> 3.2015)
+    mime-types-data (3.2016.0521)
     mimemagic (0.3.2)
     mini_portile2 (2.3.0)
     minitest (5.11.3)
@@ -102,8 +105,9 @@ PLATFORMS
 
 DEPENDENCIES
   activestorage (~> 5.2)
-  activestorage-webdav!
+  activestorage_webdav!
   bundler (~> 1.16)
+  mime-types (~> 3.1)
   net_dav (~> 0.5.1)
   rake (~> 10.0)
   rspec (~> 3.0)
