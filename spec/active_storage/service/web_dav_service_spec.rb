@@ -12,18 +12,4 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
     end
   end
 
-  describe '#url' do
-    it 'получение урл' do
-      expect(web_dav_service)
-        .to receive(:url)
-        .with(key)
-        .and_return("http://localhost:2080/imports/#{key}/")
-
-      web_dav_service.url(key)
-    end
-  end
-
-  describe '#delete prefixed' do
-
-  end
 end

@@ -2,7 +2,7 @@ require 'bundler/setup'
 require 'active_support/time'
 require 'active_storage'
 
-require 'activestorage-webdav'
+require 'activestorage_webdav'
 require 'active_storage/service/web_dav_service'
 
 RSpec.configure do |config|

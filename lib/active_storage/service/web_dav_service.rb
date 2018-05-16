@@ -1,15 +1,15 @@
 require 'net/dav'
 
 module ActiveStorage
-  class Service::WebDAVService < Service
 
+  class Service::WebDAVService < Service
     def initialize(args)
       @path = args[:url]
       @webdav = Net::DAV.new args[:url]
     end
 
     def upload(key, io, checksum: nil)
-      logger.info "метод upload"
+      Rails.logger.info "метод upload"
       instrument :upload, key: key, checksum: checksum do
         begin
           full_path = path_for key
@@ -21,7 +21,7 @@ module ActiveStorage
     end
 
     def url(key, expires_in:, disposition:, filename:, content_type:)
-      logger.info "метод url"
+      Rails.logger.info "метод url"
       instrument :url, key: key do |payload|
         full_path = path_for key
         payload[:url] = full_path
@@ -30,7 +30,7 @@ module ActiveStorage
     end
 
     def url_for_direct_upload(key, expires_in:, content_type:, content_length:, checksum:)
-      logger.info "метод url_for_direct_upload"
+      Rails.logger.info "метод url_for_direct_upload"
       instrument :url, key: key do |payload|
         full_path = path_for key
         payload[:url] = full_path
@@ -39,7 +39,7 @@ module ActiveStorage
     end
 
     def exist?(key)
-      logger.info "метод exist?"
+      Rails.logger.info "метод exist?"
       instrument :exist, key: key do |payload|
         answer = @webdav.exists? path_for key
         payload[:exist] = answer
@@ -48,7 +48,7 @@ module ActiveStorage
     end
 
     def delete(key)
-      logger.info "метод url"
+      Rails.logger.info "метод url"
       instrument :delete, key: key do
         begin
           @webdav.delete path_for key
@@ -60,7 +60,7 @@ module ActiveStorage
 
     # Delete files at keys starting with the +prefix+.
     def delete_prefixed(prefix)
-      logger.info "метод delete_prefixed"
+      Rails.logger.info "метод delete_prefixed"
       instrument :delete_prefixed, prefix: prefix do
         # FIXME это псевдокод, проверить как приходят имена файлов
         options = '<?xml version="1.0"?>
@@ -74,8 +74,8 @@ module ActiveStorage
       end
     end
 
-    def download(key)
-      logger.info "метод download"
+    def download(key, &block)
+      Rails.logger.info "метод download"
       full_path = path_for key
       if block_given?
         instrument :streaming_download, key: key do
@@ -89,7 +89,7 @@ module ActiveStorage
     end
 
     def download_chunk(key, range)
-      logger.info "метод download_chunk"
+      Rails.logger.info "метод download_chunk"
       instrument :download_chunk, key: key, range: range do
         full_path = path_for key
         @webdav.new(@path).start do |dav|
