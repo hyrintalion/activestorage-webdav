@@ -69,9 +69,8 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
 
   describe '#delete' do
     it 'instruments the operation' do
-      options = { key: key }
       expect_any_instance_of(ActiveStorage::Service)
-          .to receive(:instrument).with(:delete, options)
+          .to receive(:instrument).with(:delete, { key: key })
 
       web_dav_service.delete(key)
     end
@@ -81,9 +80,8 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
     let(:prefix) { 'some-key-prefix' }
 
     it 'instruments the operation' do
-      options = { prefix: key }
       expect_any_instance_of(ActiveStorage::Service)
-          .to receive(:instrument).with(:delete_prefixed, options)
+          .to receive(:instrument).with(:delete_prefixed, { prefix: key })
 
       web_dav_service.delete_prefixed(key)
     end
@@ -92,9 +90,8 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
   describe '#exist?' do
 
     it 'instruments the operation' do
-      options = { key: key }
       expect_any_instance_of(ActiveStorage::Service)
-          .to receive(:instrument).with(:exist, options)
+        .to receive(:instrument).with(:exist, { key: key } )
 
       web_dav_service.exist?(key)
     end
@@ -110,21 +107,20 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
     end
 
     it 'instruments the operation with block' do
-      # how to test methods with block?
-      options = { key: key, block: block }
       expect_any_instance_of(ActiveStorage::Service)
-        .to receive(:instrument).with(:streaming_download, options)
+        .to receive(:instrument).with(:streaming_download, key: key)
 
-      web_dav_service.download(key, block)
+      web_dav_service.download(key) do
+        'test'
+      end
     end
   end
 
   describe '#download_chunk' do
     let(:range) { 'range' }
     it 'instruments the operation' do
-      options = { key: key, range: range }
       expect_any_instance_of(ActiveStorage::Service)
-        .to receive(:instrument).with(:download_chunk, options)
+        .to receive(:instrument).with(:download_chunk, { key: key, range: range })
 
       web_dav_service.download_chunk(key, range)
     end
