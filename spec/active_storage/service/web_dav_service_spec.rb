@@ -3,8 +3,8 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
   let!(:web_dav_service) { described_class.new(config) }
 
   let(:key) { 'some-resource-key' }
+  let(:checksum) { Digest::MD5.base64digest(key) }
   let(:io) { File.open(File.join('spec', 'fixtures', 'file.txt')) }
-  let(:checksum) { 'checksum' }
   let(:file_path) { URI.join('http://localhost/', 'imports', key) }
   let(:config) do
     {
@@ -17,8 +17,6 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
     it 'calls the upload method on the webdav with the given args' do
       expect(webdav).to receive(:put).with(file_path, io, File.size(io))
 
-      # NoMethodError: undefined method `third' for ["ActiveStorage", "Service", "WebDAVService"]:Array
-      #  what?
       web_dav_service.upload(key, io, checksum: checksum)
     end
 

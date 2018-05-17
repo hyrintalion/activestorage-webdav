@@ -1,8 +1,9 @@
 require 'net/dav'
+require 'active_support/core_ext/array'
 
 module ActiveStorage
-
   class Service::WebDAVService < Service
+
     def initialize(args)
       @path = URI.join(args[:url], args[:path])
       @webdav = Net::DAV.new @path
@@ -93,7 +94,7 @@ module ActiveStorage
       instrument :download_chunk, key: key, range: range do
         full_path = path_for key
         @webdav.new(@path).start do |dav|
-          dav.get(full_path, "Range" => "bytes=#{range.begin}-#{range.exclude_end? ? range.end - 1 : range.end}").body
+          dav.get(full_path, 'Range' => "bytes=#{range.begin}-#{range.exclude_end? ? range.end - 1 : range.end}").body
         end
       end
     end
@@ -104,6 +105,5 @@ module ActiveStorage
       return key unless @path
       URI.join(@path, key)
     end
-
   end
 end
