@@ -1,5 +1,7 @@
 RSpec.describe ActiveStorage::Service::WebDAVService do
+  let!(:webdav) { Net::DAV.new(URI.join('http://localhost/', 'imports')) }
   let!(:web_dav_service) { described_class.new(config) }
+
   let(:key) { 'some-resource-key' }
   let(:io) { File.open(File.join('spec', 'fixtures', 'file.txt')) }
   let(:checksum) { 'checksum' }
@@ -10,12 +12,13 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
       path: 'imports'
     }
   end
-  let!(:webdav) { Net::DAV.new(URI.join('http://localhost/', 'imports')) }
 
   describe '#upload' do
     it 'calls the upload method on the webdav with the given args' do
       expect(webdav).to receive(:put).with(file_path, io, File.size(io))
 
+      # NoMethodError: undefined method `third' for ["ActiveStorage", "Service", "WebDAVService"]:Array
+      #  what?
       web_dav_service.upload(key, io, checksum: checksum)
     end
 
@@ -94,6 +97,36 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
           .to receive(:instrument).with(:exist, options)
 
       web_dav_service.exist?(key)
+    end
+  end
+
+  describe '#download' do
+    it 'instruments the operation without block' do
+      options = { key: key }
+      expect_any_instance_of(ActiveStorage::Service)
+        .to receive(:instrument).with(:download, options)
+
+      web_dav_service.download(key)
+    end
+
+    it 'instruments the operation with block' do
+      # how to test methods with block?
+      options = { key: key, block: block }
+      expect_any_instance_of(ActiveStorage::Service)
+        .to receive(:instrument).with(:streaming_download, options)
+
+      web_dav_service.download(key, block)
+    end
+  end
+
+  describe '#download_chunk' do
+    let(:range) { 'range' }
+    it 'instruments the operation' do
+      options = { key: key, range: range }
+      expect_any_instance_of(ActiveStorage::Service)
+        .to receive(:instrument).with(:download_chunk, options)
+
+      web_dav_service.download_chunk(key, range)
     end
   end
 
