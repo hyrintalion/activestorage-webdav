@@ -93,7 +93,7 @@ module ActiveStorage
       # Rails.logger.info "метод download_chunk"
       instrument :download_chunk, key: key, range: range do
         full_path = path_for key
-        @webdav.new(@path).start do |dav|
+        Net::DAV.new(@path).start do |dav|
           dav.get(full_path, 'Range' => "bytes=#{range.begin}-#{range.exclude_end? ? range.end - 1 : range.end}").body
         end
       end
