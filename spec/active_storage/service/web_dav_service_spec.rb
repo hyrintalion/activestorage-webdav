@@ -84,10 +84,20 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
     let(:second_file_key) { 'prefix_second_file_key' }
     let(:third_file_key) { 'prefix_third_file_key' }
 
+    before do
+      web_dav_service.upload(first_file_key, io, checksum: Digest::MD5.base64digest(first_file_key))
+      #web_dav_service.upload(first_file_key, io, checksum: Digest::MD5.base64digest(second_file_key))
+    end
+
+    it 'returns prefixed filenames' do
+      exp_result = ['prefix_first_file_key']
+      expect(
+          web_dav_service.prefixed_filenames('prefix')
+      ).to eq exp_result
+    end
+
     # how to test this?
     it 'calls the delete_prefixed method on webdav with the given args' do
-      # создать файлы
-      web_dav_service.upload(first_file_key, io, checksum: Digest::MD5.base64digest(first_file_key))
 
       # проверить их наличие
       expect ( web_dav_service.exist?(first_file_key) ).to be false
@@ -148,19 +158,19 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
   end
 
   describe '#download_chunk' do
-    # how to declare range?
-    let(:range) { 'range' }
+    let(:range) { 0..3 }
 
+    # чет подозрительно, что тест прошел
     it 'calls the download_chunk method on webdav' do
-      expect(webdav).to receive(:start) do |dav|
-        dav.get(file_path, 'Range' => "bytes=#{range.begin}-#{range.exclude_end? ? range.end - 1 : range.end}").body
-      end.with(file_path)
+      range_for_dav = "bytes=#{range.begin}-#{range.exclude_end? ? range.end - 1 : range.end}"
+      expect(webdav).to receive(:get).with(file_path, 'Range' => range_for_dav)
+
       web_dav_service.download_chunk(key, range)
     end
 
     it 'instruments the operation' do
       expect_any_instance_of(ActiveStorage::Service)
-        .to receive(:instrument).with(:download_chunk, {key: key, range: range })
+        .to receive(:instrument).with(:download_chunk, {key: key, range: range})
 
       web_dav_service.download_chunk(key, range)
     end

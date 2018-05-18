@@ -57,14 +57,9 @@ module ActiveStorage
     # Delete files at keys starting with the +prefix+.
     def delete_prefixed(prefix)
       instrument :delete_prefixed, prefix: prefix do
-        # FIXME это псевдокод, проверить как приходят имена файлов
-        options = '<?xml version="1.0"?>
-                  <a:propfind xmlns:a="DAV:">
-                  <a:prop><a:resourcetype/></a:prop>
-                  </a:propfind>'
-        files = @webdav.propfind(@path, options)
+        files = prefixed_filenames prefix
         files.each do |filename|
-          @webdav.delete path_for filename if filename.scan prefix
+          @webdav.delete path_for filename
         end
       end
     end
@@ -85,14 +80,25 @@ module ActiveStorage
     def download_chunk(key, range)
       instrument :download_chunk, key: key, range: range do
         full_path = path_for key
-        Net::DAV.new(@path).start do |dav|
-          dav.get(full_path, 'Range' => "bytes=#{range.begin}-#{range.exclude_end? ? range.end - 1 : range.end}").body
-        end
+        range_for_dav = "bytes=#{range.begin}-#{range.exclude_end? ? range.end - 1 : range.end}"
+
+        @webdav.get(full_path, 'Range' => range_for_dav)
       end
     end
 
-    private
 
+    def prefixed_filenames(prefix)
+      # FIXME это псевдокод, проверить как приходят имена файлов
+      answer = @webdav.propfind(@path, '<?xml version="1.0"?>
+                  <a:propfind xmlns:a="DAV:">
+                  <a:prop><a:resourcetype/></a:prop>
+                  </a:propfind>')
+      # распарсить XML
+      doc = Nokogiri::XML(answer)
+      #answer = files.find_all{ |filename| filename.scan prefix }
+    end
+
+    private
     def path_for(key)
       return key unless @path
       URI.join(@path, key)
