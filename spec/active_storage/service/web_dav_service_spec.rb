@@ -1,27 +1,21 @@
 require 'net/dav'
 
 RSpec.describe ActiveStorage::Service::WebDAVService do
-  subject(:webdav) { Net::DAV.new(URI.join('http://localhost/', 'imports/')) }
-  let!(:web_dav_service) { described_class.new(config) }
+  let(:webdav) { Net::DAV.new(URI.join('http://localhost/', 'imports/')) }
+  let(:web_dav_service) { described_class.new( { url: 'http://localhost/imports/' }) }
 
   let(:key) { 'some-resource-key' }
   let(:checksum) { Digest::MD5.base64digest(key) }
   let(:io) { File.open(File.join('spec', 'fixtures', 'file.txt')) }
   let(:file_path) { URI.join('http://localhost/imports/', key) }
-  let(:config) do
-    {
-      url: 'http://localhost/',
-      path: 'imports'
-    }
+
+  before do
+    expect(Net::DAV).to receive(:new).with('http://localhost/imports/').and_return(webdav)
   end
 
-  #  expected: 1 time with arguments
-  #  received: 0 times
-  #  WHYYYYYY!?
   describe '#upload' do
     it 'calls the upload method on the webdav with the given args' do
       expect(webdav).to receive(:put).with(file_path, io, File.size(io))
-
       web_dav_service.upload(key, io, checksum: checksum)
     end
 
@@ -85,11 +79,26 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
   end
 
   describe '#delete_prefixed' do
-    let(:prefix) { 'some-key-prefix' }
+    let(:prefix) { 'prefix' }
+    let(:first_file_key) { 'prefix_first_file_key' }
+    let(:second_file_key) { 'prefix_second_file_key' }
+    let(:third_file_key) { 'prefix_third_file_key' }
+
+    # how to test this?
+    it 'calls the delete_prefixed method on webdav with the given args' do
+      # создать файлы
+      web_dav_service.upload(first_file_key, io, checksum: Digest::MD5.base64digest(first_file_key))
+
+      # проверить их наличие
+      expect ( web_dav_service.exist?(first_file_key) ).to be false
+
+      # удалить
+      web_dav_service.delete_prefixed(prefix)
+    end
 
     it 'instruments the operation' do
       expect_any_instance_of(ActiveStorage::Service)
-        .to receive(:instrument).with(:delete_prefixed, { prefix: key })
+        .to receive(:instrument).with(:delete_prefixed, {prefix: key})
 
       web_dav_service.delete_prefixed(key)
     end
@@ -151,7 +160,7 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
 
     it 'instruments the operation' do
       expect_any_instance_of(ActiveStorage::Service)
-        .to receive(:instrument).with(:download_chunk, { key: key, range: range } )
+        .to receive(:instrument).with(:download_chunk, {key: key, range: range })
 
       web_dav_service.download_chunk(key, range)
     end
