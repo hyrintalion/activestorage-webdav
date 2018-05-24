@@ -93,8 +93,9 @@ module ActiveStorage
                   <a:propfind xmlns:a="DAV:">
                   <a:prop><a:resourcetype/></a:prop>
                   </a:propfind>')
-      # распарсить XML
-      #doc = Nokogiri::XML(answer) уже делается в propfind
+      hrefs = answer.xpath('//D:href').map do |href|
+        href.to_s.sub('<D:href>', '').sub('</D:href>', '') if href.to_s.scan(prefix)
+      end
     end
 
     private

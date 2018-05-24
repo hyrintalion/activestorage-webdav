@@ -1,16 +1,16 @@
 require 'net/dav'
 
 RSpec.describe ActiveStorage::Service::WebDAVService do
-  let(:webdav) { Net::DAV.new(URI.join('http://localhost/', 'imports/')) }
-  let(:web_dav_service) { described_class.new( { url: 'http://localhost/imports/' }) }
+  let(:webdav) { Net::DAV.new(URI.join('http://localhost/', 'import/')) }
+  let(:web_dav_service) { described_class.new( {url: 'http://localhost/import/'} )}
 
   let(:key) { 'some-resource-key' }
   let(:checksum) { Digest::MD5.base64digest(key) }
   let(:io) { File.open(File.join('spec', 'fixtures', 'file.txt')) }
-  let(:file_path) { URI.join('http://localhost/imports/', key) }
+  let(:file_path) { URI.join('http://localhost/import/', key) }
 
   before do
-    expect(Net::DAV).to receive(:new).with('http://localhost/imports/').and_return(webdav)
+    expect(Net::DAV).to receive(:new).with('http://localhost/import/').and_return(webdav)
   end
 
   describe '#upload' do
