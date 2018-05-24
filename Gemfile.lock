@@ -3,6 +3,7 @@ PATH
   specs:
     activestorage_webdav (0.1.0)
       net_dav (~> 0.5.1)
+      railsdav (~> 0.1.2)
 
 GEM
   remote: https://rubygems.org/
@@ -63,6 +64,7 @@ GEM
       nokogiri (>= 1.6)
     rails-html-sanitizer (1.0.4)
       loofah (~> 2.2, >= 2.2.2)
+    railsdav (0.1.2)
     rake (10.5.0)
     rspec (3.7.0)
       rspec-core (~> 3.7.0)

@@ -86,24 +86,23 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
 
     before do
       web_dav_service.upload(first_file_key, io, checksum: Digest::MD5.base64digest(first_file_key))
-      #web_dav_service.upload(first_file_key, io, checksum: Digest::MD5.base64digest(second_file_key))
     end
 
-    it 'returns prefixed filenames' do
+    it 'return prefixed filenames' do
       exp_result = ['prefix_first_file_key']
+
       expect(
-          web_dav_service.prefixed_filenames('prefix')
+        web_dav_service.prefixed_filenames('prefix')
       ).to eq exp_result
     end
 
     # how to test this?
     it 'calls the delete_prefixed method on webdav with the given args' do
-
-      # проверить их наличие
-      expect ( web_dav_service.exist?(first_file_key) ).to be false
-
       # удалить
       web_dav_service.delete_prefixed(prefix)
+
+      # проверить их наличие
+      expect(web_dav_service.exist?(first_file_key)).to be false
     end
 
     it 'instruments the operation' do

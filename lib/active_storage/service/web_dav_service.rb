@@ -88,17 +88,17 @@ module ActiveStorage
 
 
     def prefixed_filenames(prefix)
-      # FIXME это псевдокод, проверить как приходят имена файлов
+      # WebDAV.find(@path, :recursive => false).map{ |item| item.href.scan prefix }
       answer = @webdav.propfind(@path, '<?xml version="1.0"?>
                   <a:propfind xmlns:a="DAV:">
                   <a:prop><a:resourcetype/></a:prop>
                   </a:propfind>')
       # распарсить XML
-      doc = Nokogiri::XML(answer)
-      #answer = files.find_all{ |filename| filename.scan prefix }
+      #doc = Nokogiri::XML(answer) уже делается в propfind
     end
 
     private
+
     def path_for(key)
       return key unless @path
       URI.join(@path, key)
