@@ -59,7 +59,8 @@ module ActiveStorage
       instrument :delete_prefixed, prefix: prefix do
         files = prefixed_filenames prefix
         files.each do |filename|
-          @webdav.delete path_for filename
+          url = path_for filename
+          @webdav.delete url
         end
       end
     end
@@ -86,16 +87,17 @@ module ActiveStorage
       end
     end
 
-
     def prefixed_filenames(prefix)
-      # WebDAV.find(@path, :recursive => false).map{ |item| item.href.scan prefix }
       answer = @webdav.propfind(@path, '<?xml version="1.0"?>
                   <a:propfind xmlns:a="DAV:">
                   <a:prop><a:resourcetype/></a:prop>
                   </a:propfind>')
-      hrefs = answer.xpath('//D:href').map do |href|
-        href.to_s.sub('<D:href>', '').sub('</D:href>', '') if href.to_s.scan(prefix)
+      hrefs = Array.new
+      answer.xpath('//D:href').each do |href|
+        href = href.to_s.sub('<D:href>', '').sub('</D:href>', '').split('/').last
+        hrefs << href if href.scan(prefix).size > 0
       end
+      hrefs
     end
 
     private

@@ -15,15 +15,14 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
 
   describe '#upload' do
     it 'calls the upload method on the webdav with the given args' do
-      expect(webdav).to receive(:put).with(file_path, io, File.size(io))
       web_dav_service.upload(key, io, checksum: checksum)
+      expect(webdav.exists?(file_path)).to be true
     end
 
     it 'instruments the operation' do
       options = { key: key, checksum: checksum }
       expect_any_instance_of(ActiveStorage::Service)
         .to receive(:instrument).with(:upload, options)
-
       web_dav_service.upload(key, io, checksum: checksum)
     end
   end
@@ -41,7 +40,6 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
     it 'instruments the operation' do
       expect_any_instance_of(ActiveStorage::Service)
         .to receive(:instrument).with(:url, key: key)
-
       web_dav_service.url(key, options)
     end
   end
@@ -59,20 +57,19 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
     it 'instruments the operation' do
       expect_any_instance_of(ActiveStorage::Service)
         .to receive(:instrument).with(:url, key: key)
-
       web_dav_service.url_for_direct_upload(key, options)
     end
   end
 
   describe '#delete' do
     it 'calls the delete method on webdav with the given args' do
-      expect(webdav).to receive(:delete).with(file_path)
       web_dav_service.delete(key)
+      expect(webdav.exists?(file_path)).to be false
     end
 
     it 'instruments the operation' do
       expect_any_instance_of(ActiveStorage::Service)
-        .to receive(:instrument).with(:delete, { key: key } )
+        .to receive(:instrument).with(:delete, {key: key})
 
       web_dav_service.delete(key)
     end
@@ -80,35 +77,27 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
 
   describe '#delete_prefixed' do
     let(:prefix) { 'prefix' }
-    let(:first_file_key) { 'prefix_first_file_key' }
-    let(:second_file_key) { 'prefix_second_file_key' }
-    let(:third_file_key) { 'prefix_third_file_key' }
+    let(:first_file_path) { URI.join('http://localhost/import/', 'prefix_first_file_key') }
 
     before do
-      web_dav_service.upload(first_file_key, io, checksum: Digest::MD5.base64digest(first_file_key))
+      webdav.put(first_file_path, io, File.size(io))
     end
 
     it 'return prefixed filenames' do
       exp_result = ['prefix_first_file_key']
-
       expect(
         web_dav_service.prefixed_filenames('prefix')
       ).to eq exp_result
     end
 
-    # how to test this?
     it 'calls the delete_prefixed method on webdav with the given args' do
-      # удалить
-      web_dav_service.delete_prefixed(prefix)
-
-      # проверить их наличие
-      expect(web_dav_service.exist?(first_file_key)).to be false
+      web_dav_service.delete('prefix_first_file_key')
+      expect(webdav.exists?(first_file_path)).to be false
     end
 
     it 'instruments the operation' do
       expect_any_instance_of(ActiveStorage::Service)
         .to receive(:instrument).with(:delete_prefixed, {prefix: key})
-
       web_dav_service.delete_prefixed(key)
     end
   end
@@ -122,7 +111,6 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
     it 'instruments the operation' do
       expect_any_instance_of(ActiveStorage::Service)
         .to receive(:instrument).with(:exist, { key: key } )
-
       web_dav_service.exist?(key)
     end
   end
@@ -144,14 +132,12 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
       options = { key: key }
       expect_any_instance_of(ActiveStorage::Service)
         .to receive(:instrument).with(:download, options)
-
       web_dav_service.download(key)
     end
 
     it 'instruments the operation with block' do
       expect_any_instance_of(ActiveStorage::Service)
         .to receive(:instrument).with(:streaming_download, key: key)
-
       web_dav_service.download(key, &block)
     end
   end
@@ -159,18 +145,15 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
   describe '#download_chunk' do
     let(:range) { 0..3 }
 
-    # чет подозрительно, что тест прошел
     it 'calls the download_chunk method on webdav' do
       range_for_dav = "bytes=#{range.begin}-#{range.exclude_end? ? range.end - 1 : range.end}"
       expect(webdav).to receive(:get).with(file_path, 'Range' => range_for_dav)
-
       web_dav_service.download_chunk(key, range)
     end
 
     it 'instruments the operation' do
       expect_any_instance_of(ActiveStorage::Service)
         .to receive(:instrument).with(:download_chunk, {key: key, range: range})
-
       web_dav_service.download_chunk(key, range)
     end
   end
