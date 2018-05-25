@@ -27,5 +27,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec', '~> 3.0'
 
   spec.add_runtime_dependency 'net_dav', '~> 0.5.1'
-  spec.add_runtime_dependency 'railsdav', '~> 0.1.2'
+  spec.add_runtime_dependency 'webmock', '~> 2.1'
 end

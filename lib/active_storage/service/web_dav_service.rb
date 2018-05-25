@@ -1,5 +1,6 @@
 require 'net/dav'
 require 'active_support/core_ext/array'
+# require 'webmock/rspec'
 
 module ActiveStorage
   class Service::WebDAVService < Service
@@ -87,6 +88,8 @@ module ActiveStorage
       end
     end
 
+    private
+
     def prefixed_filenames(prefix)
       answer = @webdav.propfind(@path, '<?xml version="1.0"?>
                   <a:propfind xmlns:a="DAV:">
@@ -99,8 +102,6 @@ module ActiveStorage
       end
       hrefs
     end
-
-    private
 
     def path_for(key)
       return key unless @path
