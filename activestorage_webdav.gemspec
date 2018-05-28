@@ -1,6 +1,5 @@
 
-lib = File.expand_path('../lib', __FILE__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+$LOAD_PATH.unshift(File.expand_path('../lib', __FILE__)).uniq!
 require 'activestorage_webdav/version'
 
 Gem::Specification.new do |spec|
@@ -21,11 +20,11 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_development_dependency 'activestorage', '~> 5.2'
   spec.add_development_dependency 'bundler', '~> 1.16'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
+  spec.add_development_dependency 'webmock', '~> 2.1'
 
+  spec.add_runtime_dependency 'activestorage', '~> 5.2'
   spec.add_runtime_dependency 'net_dav', '~> 0.5.1'
-  spec.add_runtime_dependency 'webmock', '~> 2.1'
 end
