@@ -2,7 +2,7 @@
 
 WebDAV service for ActiveStorage.
 
-[![Build Status](https://travis-ci.org/hyrintalion/activestorage-webdav)](https://travis-ci.org/d-unseductable/ruru)
+[![Build Status]()]()
 
 ## Installation
 

@@ -6,6 +6,7 @@ module ActiveStorage
 
     def initialize(args)
       @path = args[:url]
+      return @webdav = args[:net_dav] if args[:net_dav]
       @webdav = Net::DAV.new args[:url]
     end
 
@@ -98,12 +99,11 @@ module ActiveStorage
           </a:propfind>
 XML
       answer = @webdav.propfind(@path, options)
-      hrefs = Array.new
-      answer.xpath('//D:href').each do |href|
+
+      answer.xpath('//D:href').select do |href|
         href = href.to_s.sub('<D:href>', '').sub('</D:href>', '').split('/').last
-        hrefs << href if href.scan(prefix).size > 0
+        href if href.scan(prefix).size > 0
       end
-      hrefs
     end
 
     def path_for(key)

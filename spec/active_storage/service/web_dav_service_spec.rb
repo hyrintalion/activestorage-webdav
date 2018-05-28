@@ -3,16 +3,17 @@ require 'webmock/rspec'
 
 RSpec.describe ActiveStorage::Service::WebDAVService do
   let(:webdav) { Net::DAV.new(URI.join('http://localhost/', 'import/')) }
-  let(:web_dav_service) { described_class.new( {url: 'http://localhost/import/'} )}
+  let(:web_dav_service) do
+    described_class.new( {
+      url: 'http://localhost/import/',
+      net_dav: webdav
+    } )
+  end
 
   let(:key) { 'some-resource-key' }
   let(:checksum) { Digest::MD5.base64digest(key) }
   let(:io) { File.open(File.join('spec', 'fixtures', 'file.txt')) }
   let(:file_path) { URI.join('http://localhost/import/', key) }
-
-  before do
-    expect(Net::DAV).to receive(:new).with('http://localhost/import/').and_return(webdav)
-  end
 
   describe '#upload' do
     it 'calls the upload method on the webdav with the given args' do
