@@ -80,9 +80,10 @@ module ActiveStorage
 
     def download_chunk(key, range)
       instrument :download_chunk, key: key, range: range do
-        full_path = path_for key
-        range_for_dav = "bytes=#{range.begin}-#{range.exclude_end? ? range.end - 1 : range.end}"
+        range_end = range.exclude_end? ? range.end - 1 : range.end
+        range_for_dav = "bytes=#{range.begin}-#{range_end}"
 
+        full_path = path_for key
         @webdav.get(full_path, 'Range' => range_for_dav)
       end
     end
@@ -90,10 +91,13 @@ module ActiveStorage
     private
 
     def prefixed_filenames(prefix)
-      answer = @webdav.propfind(@path, '<?xml version="1.0"?>
-                  <a:propfind xmlns:a="DAV:">
-                  <a:prop><a:resourcetype/></a:prop>
-                  </a:propfind>')
+      options = <<XML
+          <?xml version="1.0"?>
+            <a:propfind xmlns:a="DAV:">
+              <a:prop><a:resourcetype/></a:prop>
+          </a:propfind>
+XML
+      answer = @webdav.propfind(@path, options)
       hrefs = Array.new
       answer.xpath('//D:href').each do |href|
         href = href.to_s.sub('<D:href>', '').sub('</D:href>', '').split('/').last
