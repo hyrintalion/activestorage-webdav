@@ -1,6 +1,8 @@
-# ActivestorageWebDAV
+# ActiveStorageWebDAV
 
-Webdav service for activestorage.
+WebDAV service for ActiveStorage.
+
+[![Build Status](https://travis-ci.org/hyrintalion/activestorage-webdav)](https://travis-ci.org/d-unseductable/ruru)
 
 ## Installation
 
@@ -14,7 +16,7 @@ And then execute:
 
     $ bundle
 
-Set up upyun storage service in config/storage.yml:
+Set up webdav storage service in config/storage.yml:
 
 ```yml
 webdav:
@@ -24,7 +26,11 @@ webdav:
 
 ## Usage
 
-TODO: Write usage instructions here
+To use the WebDAV service in the development environment, you would add the following to config/environments/your_environment.rb:
+
+```ruby.
+config.active_storage.service = :webdav
+```
 
 ## Contributing
 

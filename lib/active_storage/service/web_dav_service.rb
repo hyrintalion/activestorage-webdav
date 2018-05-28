@@ -1,6 +1,5 @@
 require 'net/dav'
 require 'active_support/core_ext/array'
-# require 'webmock/rspec'
 
 module ActiveStorage
   class Service::WebDAVService < Service
