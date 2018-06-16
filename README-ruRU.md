@@ -2,8 +2,6 @@
 
 WebDAV сервис для ActiveStorage.
 
-[![Build Status]()]()
-
 ## Installation
 
 Добавьте эту строку в Gemfile вашего приложения:
