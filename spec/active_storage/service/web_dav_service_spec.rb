@@ -1,11 +1,17 @@
 require 'net/dav'
-require 'webmock/rspec'
+#require 'webmock/rspec'
+require 'rubygems'
+require 'rack_dav'
 
 RSpec.describe ActiveStorage::Service::WebDAVService do
-  let(:webdav) { Net::DAV.new(URI.join('http://localhost/', 'import/')) }
+  before do
+    RackDAV::Handler.new(:root => '/spec/tmp/')
+  end
+
+  let(:webdav) { Net::DAV.new(URI.join('http://localhost/')) }
   let(:web_dav_service) do
     described_class.new( {
-      url: 'http://localhost/import/',
+      url: '/spec/tmp/',
       net_dav: webdav
     } )
   end
@@ -13,9 +19,16 @@ RSpec.describe ActiveStorage::Service::WebDAVService do
   let(:key) { 'some-resource-key' }
   let(:checksum) { Digest::MD5.base64digest(key) }
   let(:io) { File.open(File.join('spec', 'fixtures', 'file.txt')) }
-  let(:file_path) { URI.join('http://localhost/import/', key) }
+  #let(:file_path) { URI.join('http://localhost/import/', key) }
+  let(:file_path) { '/spec/tmp/' }
 
   describe '#upload' do
+    it 'saves file' do
+      #aswd.put(file, ...)
+      web_dav_service.upload(key, io, checksum: checksum)
+      expect(File.exists?(file_path)).to be true
+    end
+
     it 'calls the upload method on the webdav with the given args' do
       expect(webdav).to receive(:put).with(file_path, io, File.size(io))
       web_dav_service.upload(key, io, checksum: checksum)
