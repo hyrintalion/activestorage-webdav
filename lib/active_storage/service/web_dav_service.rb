@@ -10,7 +10,7 @@ module ActiveStorage
       @webdav = Net::DAV.new args[:url]
     end
 
-    def upload(key, io, checksum: nil)
+    def upload(key, io, checksum: nil, **)
       instrument :upload, key: key, checksum: checksum do
         begin
           full_path = path_for key
