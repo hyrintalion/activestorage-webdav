@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/hyrintalion/activestorage-webdav.svg?branch=master)](https://travis-ci.org/hyrintalion/activestorage-webdav)
+
 # ActiveStorageWebDAV
 
 WebDAV service for ActiveStorage.
